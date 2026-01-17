@@ -18,6 +18,21 @@
     // Set up form submission
     document.getElementById('practiceForm').addEventListener('submit', handleFormSubmit);
 
+    // Set up behavior toggle
+    const wellBehavedToggle = document.getElementById('wellBehaved');
+    const behaviorNotesGroup = document.getElementById('behaviorNotesGroup');
+
+    wellBehavedToggle.addEventListener('change', function() {
+        if (this.checked) {
+            // Well behaved - hide notes
+            behaviorNotesGroup.style.display = 'none';
+            document.getElementById('behaviorNotes').value = '';
+        } else {
+            // Not well behaved - show notes
+            behaviorNotesGroup.style.display = 'block';
+        }
+    });
+
     // Hide loading overlay after initial load
     hideLoading();
 
@@ -43,12 +58,16 @@ async function handleFormSubmit(event) {
     const date = document.getElementById('practiceDate').value;
     const duration = parseInt(document.getElementById('duration').value);
     const notes = document.getElementById('notes').value;
+    const wellBehaved = document.getElementById('wellBehaved').checked;
+    const behaviorNotes = document.getElementById('behaviorNotes').value;
 
     // Create practice session object
     const session = {
         date: date,
         duration: duration,
-        notes: notes || null
+        notes: notes || null,
+        well_behaved: wellBehaved,
+        behavior_notes: wellBehaved ? null : (behaviorNotes || null)
     };
 
     // Save to storage
@@ -188,18 +207,28 @@ function displayPracticeHistory(sessions) {
     }
 
     // Build HTML for all sessions
-    const html = sessions.map(session => `
-        <div class="practice-item">
+    const html = sessions.map(session => {
+        const behaviorBadge = session.well_behaved === false
+            ? '<span class="behavior-badge bad">Behavior Issue</span>'
+            : session.well_behaved === true
+            ? '<span class="behavior-badge good">Well Behaved</span>'
+            : '';
+
+        return `
+        <div class="practice-item ${session.well_behaved === false ? 'behavior-issue' : ''}">
             <div class="practice-header">
                 <span class="practice-date">${formatDate(session.date)}</span>
                 <div>
+                    ${behaviorBadge}
                     <span class="practice-duration">${session.duration} min</span>
                     <button class="btn-delete" onclick="deleteSession(${session.id})">Delete</button>
                 </div>
             </div>
             ${session.notes ? `<div class="practice-notes">${escapeHtml(session.notes)}</div>` : ''}
+            ${session.behavior_notes ? `<div class="behavior-notes"><strong>Behavior:</strong> ${escapeHtml(session.behavior_notes)}</div>` : ''}
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     historyContainer.innerHTML = html;
 }

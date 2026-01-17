@@ -122,6 +122,83 @@ section h2 {
     font-family: inherit;
 }
 
+/* Behavior Toggle Switch */
+.behavior-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+    background-color: #28a745;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: white;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.3s;
+}
+
+.toggle-switch input[type="checkbox"]:not(:checked) + .toggle-slider {
+    background-color: #dc3545;
+}
+
+.toggle-switch input[type="checkbox"]:not(:checked) + .toggle-slider::before {
+    transform: translateX(30px);
+}
+
+.toggle-label-yes,
+.toggle-label-no {
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: opacity 0.3s;
+}
+
+.toggle-switch input[type="checkbox"]:checked ~ .toggle-label-yes {
+    color: #28a745;
+    opacity: 1;
+}
+
+.toggle-switch input[type="checkbox"]:checked ~ .toggle-label-no {
+    opacity: 0.3;
+}
+
+.toggle-switch input[type="checkbox"]:not(:checked) ~ .toggle-label-yes {
+    opacity: 0.3;
+}
+
+.toggle-switch input[type="checkbox"]:not(:checked) ~ .toggle-label-no {
+    color: #dc3545;
+    opacity: 1;
+}
+
 /* Buttons */
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -197,6 +274,11 @@ section h2 {
     border-color: #667eea;
 }
 
+.practice-item.behavior-issue {
+    border-color: #ffeaa7;
+    background-color: #fffbf0;
+}
+
 .practice-header {
     display: flex;
     justify-content: space-between;
@@ -223,6 +305,35 @@ section h2 {
     color: #666;
     line-height: 1.6;
     font-style: italic;
+}
+
+.behavior-notes {
+    color: #e67e22;
+    line-height: 1.6;
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff3e6;
+    border-left: 3px solid #e67e22;
+    border-radius: 4px;
+}
+
+.behavior-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.behavior-badge.good {
+    background: #d4edda;
+    color: #155724;
+}
+
+.behavior-badge.bad {
+    background: #fff3cd;
+    color: #856404;
 }
 
 .empty-state {
