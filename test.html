@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .success { border-left-color: #28a745; }
+        .error { border-left-color: #dc3545; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Violin Practice Tracker - Connection Test</h1>
+
+    <div class="test-box">
+        <h2>Step 1: Check Supabase Library</h2>
+        <div id="libraryCheck">Loading...</div>
+    </div>
+
+    <div class="test-box">
+        <h2>Step 2: Check Configuration</h2>
+        <div id="configCheck">Waiting for library...</div>
+    </div>
+
+    <div class="test-box">
+        <h2>Step 3: Test Database Connection</h2>
+        <button onclick="testConnection()" id="testConnBtn">Test Connection</button>
+        <div id="connectionTest"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Step 4: Test Insert</h2>
+        <button onclick="testInsert()" id="testInsertBtn">Insert Test Data</button>
+        <div id="insertTest"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Step 5: Test Read</h2>
+        <button onclick="testRead()" id="testReadBtn">Read Data</button>
+        <div id="readTest"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Credentials
+        const SUPABASE_URL = 'https://bgtktvaqyususdjarqke.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGt0dmFxeXVzdXNkamFycWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1OTAzNDAsImV4cCI6MjA4NDE2NjM0MH0.uxIMABFAzpMDLByJbCAo7eg5o1g-1zTgTItztQXt4RI';
+
+        let supabaseClient = null;
+
+        // Wait for the script to load, then initialize
+        window.addEventListener('load', function() {
+            setTimeout(initializeTest, 500); // Give it a moment to load
+        });
+
+        function initializeTest() {
+            const libraryCheck = document.getElementById('libraryCheck');
+            const configCheck = document.getElementById('configCheck');
+
+            // Step 1: Check if Supabase library loaded
+            if (typeof window.supabase !== 'undefined') {
+                libraryCheck.innerHTML = '<span style="color: green;">✓ Supabase library loaded successfully</span>';
+                libraryCheck.parentElement.classList.add('success');
+
+                // Step 2: Initialize client
+                try {
+                    const { createClient } = window.supabase;
+                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+                    configCheck.innerHTML = '<span style="color: green;">✓ Supabase client initialized</span><br>' +
+                        '<strong>URL:</strong> ' + SUPABASE_URL;
+                    configCheck.parentElement.classList.add('success');
+
+                    // Enable test buttons
+                    document.getElementById('testConnBtn').disabled = false;
+                    document.getElementById('testInsertBtn').disabled = false;
+                    document.getElementById('testReadBtn').disabled = false;
+                } catch (err) {
+                    configCheck.innerHTML = '<span style="color: red;">✗ Failed to initialize client</span><br>' +
+                        '<pre>' + err.message + '</pre>';
+                    configCheck.parentElement.classList.add('error');
+                }
+            } else {
+                libraryCheck.innerHTML = '<span style="color: red;">✗ Supabase library failed to load</span>';
+                libraryCheck.parentElement.classList.add('error');
+                configCheck.innerHTML = '<span style="color: red;">✗ Cannot initialize - library not loaded</span>';
+                configCheck.parentElement.classList.add('error');
+            }
+        }
+
+        // Step 3: Test connection
+        async function testConnection() {
+            const testDiv = document.getElementById('connectionTest');
+            testDiv.innerHTML = 'Testing connection...';
+            testDiv.parentElement.classList.remove('success', 'error');
+
+            if (!supabaseClient) {
+                testDiv.innerHTML = '<span style="color: red;">✗ Client not initialized</span>';
+                testDiv.parentElement.classList.add('error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('practice_sessions')
+                    .select('count');
+
+                if (error) {
+                    testDiv.innerHTML = '<span style="color: red;">✗ Connection failed</span><br>' +
+                        '<strong>Error:</strong> ' + error.message + '<br>' +
+                        '<pre>' + JSON.stringify(error, null, 2) + '</pre>' +
+                        '<p><strong>Common issues:</strong></p>' +
+                        '<ul>' +
+                        '<li>Table "practice_sessions" does not exist - Run the SQL from SUPABASE_SETUP.md</li>' +
+                        '<li>Invalid API credentials - Double check your URL and anon key</li>' +
+                        '</ul>';
+                    testDiv.parentElement.classList.add('error');
+                } else {
+                    testDiv.innerHTML = '<span style="color: green;">✓ Connection successful</span><br>' +
+                        'Successfully connected to Supabase!';
+                    testDiv.parentElement.classList.add('success');
+                }
+            } catch (err) {
+                testDiv.innerHTML = '<span style="color: red;">✗ Unexpected error</span><br>' +
+                    '<pre>' + err.message + '</pre>';
+                testDiv.parentElement.classList.add('error');
+            }
+        }
+
+        // Step 4: Test insert
+        async function testInsert() {
+            const testDiv = document.getElementById('insertTest');
+            testDiv.innerHTML = 'Inserting test data...';
+            testDiv.parentElement.classList.remove('success', 'error');
+
+            if (!supabaseClient) {
+                testDiv.innerHTML = '<span style="color: red;">✗ Client not initialized</span>';
+                testDiv.parentElement.classList.add('error');
+                return;
+            }
+
+            try {
+                const testSession = {
+                    date: '2026-01-17',
+                    duration: 30,
+                    notes: 'Test practice session from diagnostic page'
+                };
+
+                const { data, error } = await supabaseClient
+                    .from('practice_sessions')
+                    .insert([testSession])
+                    .select();
+
+                if (error) {
+                    testDiv.innerHTML = '<span style="color: red;">✗ Insert failed</span><br>' +
+                        '<strong>Error:</strong> ' + error.message + '<br>' +
+                        '<pre>' + JSON.stringify(error, null, 2) + '</pre>';
+                    testDiv.parentElement.classList.add('error');
+                } else {
+                    testDiv.innerHTML = '<span style="color: green;">✓ Insert successful</span><br>' +
+                        'Test data inserted successfully!<br>' +
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    testDiv.parentElement.classList.add('success');
+                }
+            } catch (err) {
+                testDiv.innerHTML = '<span style="color: red;">✗ Unexpected error</span><br>' +
+                    '<pre>' + err.message + '</pre>';
+                testDiv.parentElement.classList.add('error');
+            }
+        }
+
+        // Step 5: Test read
+        async function testRead() {
+            const testDiv = document.getElementById('readTest');
+            testDiv.innerHTML = 'Reading data...';
+            testDiv.parentElement.classList.remove('success', 'error');
+
+            if (!supabaseClient) {
+                testDiv.innerHTML = '<span style="color: red;">✗ Client not initialized</span>';
+                testDiv.parentElement.classList.add('error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('practice_sessions')
+                    .select('*')
+                    .order('date', { ascending: false });
+
+                if (error) {
+                    testDiv.innerHTML = '<span style="color: red;">✗ Read failed</span><br>' +
+                        '<strong>Error:</strong> ' + error.message + '<br>' +
+                        '<pre>' + JSON.stringify(error, null, 2) + '</pre>';
+                    testDiv.parentElement.classList.add('error');
+                } else {
+                    testDiv.innerHTML = '<span style="color: green;">✓ Read successful</span><br>' +
+                        'Found ' + data.length + ' practice session(s)<br>' +
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    testDiv.parentElement.classList.add('success');
+                }
+            } catch (err) {
+                testDiv.innerHTML = '<span style="color: red;">✗ Unexpected error</span><br>' +
+                    '<pre>' + err.message + '</pre>';
+                testDiv.parentElement.classList.add('error');
+            }
+        }
+
+        // Disable buttons initially
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('testConnBtn').disabled = true;
+            document.getElementById('testInsertBtn').disabled = true;
+            document.getElementById('testReadBtn').disabled = true;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violin Practice Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="loading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+    <div class="container">
+        <header>
+            <h1>🎻 Violin Practice Tracker</h1>
+            <p class="subtitle">Track your daughter's practice sessions</p>
+        </header>
+
+        <main>
+            <!-- Log Practice Section -->
+            <section class="log-section">
+                <h2>Log Practice Session</h2>
+                <form id="practiceForm">
+                    <div class="form-group">
+                        <label for="practiceDate">Date:</label>
+                        <input type="date" id="practiceDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration (minutes):</label>
+                        <input type="number" id="duration" min="1" max="300" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes (what was practiced, progress, etc.):</label>
+                        <textarea id="notes" rows="4" placeholder="e.g., Worked on scales, practiced new song..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Log Practice Session</button>
+                </form>
+            </section>
+
+            <!-- Statistics Section -->
+            <section class="stats-section">
+                <h2>Practice Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>This Week</h3>
+                        <p class="stat-value" id="weekTotal">0</p>
+                        <p class="stat-label">minutes</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>This Month</h3>
+                        <p class="stat-value" id="monthTotal">0</p>
+                        <p class="stat-label">minutes</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Sessions</h3>
+                        <p class="stat-value" id="sessionCount">0</p>
+                        <p class="stat-label">sessions</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Practice History Section -->
+            <section class="history-section">
+                <h2>Practice History</h2>
+                <div id="practiceHistory" class="practice-list">
+                    <p class="empty-state">No practice sessions logged yet. Start by logging your first session above!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Wait for Supabase library to load, then load our scripts
+        window.addEventListener('load', function() {
+            // Give the CDN script a moment to fully initialize
+            setTimeout(function() {
+                // Load config
+                const configScript = document.createElement('script');
+                configScript.src = 'js/config.js';
+                document.body.appendChild(configScript);
+
+                // Load app after config
+                configScript.onload = function() {
+                    const appScript = document.createElement('script');
+                    appScript.src = 'js/app.js';
+                    document.body.appendChild(appScript);
+                };
+            }, 100);
+        });
+    </script>
+</body>
+</html>

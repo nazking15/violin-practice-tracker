@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "violin-practice-tracker",
+  "builds": [
+    {
+      "src": "**/*",
+      "use": "@vercel/static"
+    }
+  ]
+}
